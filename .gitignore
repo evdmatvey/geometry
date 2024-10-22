@@ -1,0 +1,14 @@
+# objects
+*.a
+*.d
+*.o
+
+# build
+bin/geometry.exe
+bin/geometry
+
+# ide
+.vscode
+
+# data
+.txt
