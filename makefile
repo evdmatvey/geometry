@@ -4,16 +4,19 @@ LIB_NAME = libgeometry
 
 # dirs
 SRC_DIR = src
-TEST_DIR = test
 OBJ_DIR = obj
 BIN_DIR = bin
+TEST_DIR = test
+THIRDPARTY_DIR = thirdpatry
 
 # paths
 OBJ_PATH = $(OBJ_DIR)/$(SRC_DIR)
 APP_PATH = $(BIN_DIR)/$(APP_NAME)
+TEST_BIN = $(BIN_DIR)/$(APP_NAME)_test
 LIB_PATH = $(SRC_DIR)/$(LIB_NAME)
+TEST_PATH = $(OBJ_DIR)/$(TEST_DIR)
 LIB = $(OBJ_PATH)/$(LIB_NAME)
-TEST = $(OBJ_DIR)/$(TEST_DIR)
+
 # compiler options
 CC = gcc
 CFLAGS = -c -Wall -Wextra -Werror -I $(SRC_DIR) -MP -MMD
@@ -57,19 +60,21 @@ $(OBJ_PATH)/$(APP_NAME)/main.o: $(LIB)/$(LIB_NAME).a $(SRC_DIR)/$(APP_NAME)/main
 	rm -f $(OBJ_DIR)/$(LIB_PATH)/*.o
 	$(CC) $(CFLAGS) $^ -o $@ -L obj/src/libgeometry -lgeometry
 
-$(TEST)/token_test.o: $(TEST_DIR)/token_test.c $(TEST_DIR)/token_test.c
-	$(CC) $(CFLAGS) -I thirdparty -c $< -o $@
-
-$(TEST)/main.o: $(TEST_DIR)/main.c $(TEST_DIR)/main.c
-	$(CC) $(CFLAGS) -I thirdparty -c $< -o $@
-
-$(BIN_DIR)/$(APP_NAME)-test: $(TEST)/main.o $(TEST)/token_test.o
-	$(CC) $(CFLAGS) -I thirdparty $^ -o $@ -L obj/src/libgeometry -lgeometry
-
-test: $(BIN_DIR)/$(APP_NAME)-test
-
 run:
 	$(APP_PATH)
+
+$(TEST_PATH)/main.o: $(TEST_DIR)/main.c $(THIRDPARTY_DIR)/ctest.h
+	$(CC) $(CFLAGS) -I thirdpatry -c $< -o $@
+
+$(TEST_PATH)/token_test.o: $(TEST_DIR)/token_test.c $(THIRDPARTY_DIR)/ctest.h  $(LIB)/$(LIB_NAME).a
+	$(CC) $(CFLAGS) -I thirdpatry -c $< -o $@ -L obj/src/libgeometry -lgeometry
+
+$(TEST_PATH)/calculator_test.o: $(TEST_DIR)/calculator_test.c $(THIRDPARTY_DIR)/ctest.h  $(LIB)/$(LIB_NAME).a
+	$(CC) $(CFLAGS) -I thirdpatry -c $< -o $@ -L obj/src/libgeometry -lgeometry
+
+test: $(TEST_PATH)/main.o $(TEST_PATH)/token_test.o $(TEST_PATH)/calculator_test.o $(THIRDPARTY_DIR)/ctest.h
+	$(CC) $^ -o $(TEST_BIN) $(LDFLAGS)
+	$(TEST_BIN)
 
 clean:
 	rm -f $(APP_PATH)
